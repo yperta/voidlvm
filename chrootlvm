@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#chroot /mnt
+chown root:root /
+chmod 755 /
+passwd root
+echo voidvm > /etc/hostname
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "en_US.UTF-8 UTF-8" >> /etc/default/libc-locales
+xbps-reconfigure -f glibc-locales
+
+clear
+lsblk
+read -p "RE-Enter EFI partition for creating fstab  (eg: sda1,vda1,nvme01) : " GEN_EFI
+
+read -p "RE-Encrypted the partition (eg: sda2,vda2,nvme02) : " ECRVLM
+
+
+UUID_EFI=$(blkid -o value -s UUID /dev/$GEN_EFI)
+UUID_ROOT=$(blkid -o value -s UUID /dev/$ECRVLM)
+
+echo "UUID=${UUID_EFI}	/boot/efi	vfat	defaults	  0       0" > /etc/fstab	      
+echo "/dev/voidvm/root  /     ext4     defaults             0       0" >> /etc/fstab
+echo "/dev/voidvm/swap  swap  swap    defaults              0       0" >> /etc/fstab
+
+
+echo "GRUB_ENABLE_CRYPTODISK=y" >> /etc/default/grub 
+
+#echo 'GRUB_CMDLINE_LINUX="rd.lvm.vg=voidvm rd.luks.uuid='${UUID_ROOT}'"'
+
+sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=4"|GRUB_CMDLINE_LINUX_DEFAULT="loglevel=4 rd.lvm.vg=voidvm rd.luks.uuid='$UUID_ROOT'"|g' /etc/default/grub
+
+
+dd bs=1 count=64 if=/dev/urandom of=/boot/volume.key
+
+cryptsetup luksAddKey /dev/$ECRVLM /boot/volume.key
+
+chmod 000 /boot/volume.key
+chmod -R g-rwx,o-rwx /boot
+
+echo "voidvm   UUID=${UUID_ROOT}   /boot/volume.key   luks" >> /etc/crypttab
+touch /etc/dracut.conf.d/10-crypt.conf
+
+echo 'install_items+=" /boot/volume.key /etc/crypttab "'
+
+
+grub-install --target=x86_64-efi --efi-directory=/boot/efi
+grub-mkconfig -o /boot/grub/grub.cfg
+xbps-reconfigure -fa
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
