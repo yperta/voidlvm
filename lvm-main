@@ -13,7 +13,7 @@ read -p "EFI partition (eg: sda1,vda1,nvme01) : " DISK_EFI
 
 read -p "Root partition (eg: sda2,vda2,nvme02) : " DISK_ROOT
 
-echo -n "$ENCRPYTION_PASS" | cryptsetup -y -v luksFormat /dev/$DISK_ROOT
+echo -n "$ENCRPYTION_PASS" | cryptsetup luksFormat --type luks1 /dev/$DISK_ROOT
 echo -n "$ENCRPYTION_PASS" | cryptsetup luksOpen /dev/$DISK_ROOT voidvm
 vgcreate voidvm /dev/mapper/voidvm
 lvcreate --name swap -L ${SWPPART}G voidvm
