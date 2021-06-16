@@ -39,9 +39,10 @@ chmod 000 /boot/volume.key
 chmod -R g-rwx,o-rwx /boot
 
 echo "voidvm   UUID=${UUID_ROOT}   /boot/volume.key   luks" >> /etc/crypttab
+
 touch /etc/dracut.conf.d/10-crypt.conf
 
-echo 'install_items+=" /boot/volume.key /etc/crypttab "'
+echo 'install_items+=" /boot/volume.key /etc/crypttab "' >> /etc/dracut.conf.d/10-crypt.conf
 
 
 grub-install --target=x86_64-efi --efi-directory=/boot/efi
