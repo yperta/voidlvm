@@ -40,7 +40,14 @@ echo "
 read -p "Root partition (eg: sda2,vda2,nvme02) : " DISK_ROOT
 }
 
+ENCR(){
+clear && /bin/echo -e '\n\n' "\e[1;32mEncrypting Drive...\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mRewriting the drive with random data\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mIgnore the errors, Do not panic if it looks stuck!
 
+\e[0m"
 echo -n "$ENCRPYTION_PASS" | cryptsetup luksFormat --type luks1 /dev/$DISK_ROOT
 echo -n "$ENCRPYTION_PASS" | cryptsetup luksOpen /dev/$DISK_ROOT voidvm
 vgcreate voidvm /dev/mapper/voidvm
@@ -53,16 +60,47 @@ for dir in dev proc sys run; do mkdir -p /mnt/$dir ; mount --rbind /$dir /mnt/$d
 mkfs.fat -F32 /dev/$DISK_EFI
 mkdir -p /mnt/boot/efi
 mount /dev/$DISK_EFI /mnt/boot/efi
+}
 
+
+BASE_BUILD(){
 ARCH=x86_64
-echo YES|xbps-install -Sy -R https://alpha.de.repo.voidlinux.org/current -r /mnt base-system cryptsetup grub-x86_64-efi lvm2
+echo YES|xbps-install -Sy -R https://alpha.de.repo.voidlinux.org/current -r /mnt base-system cryptsetup grub-x86_64-efi lvm2 vim git terminus-font zsh zsh-syntax-highlighting zsh-autosuggestions
+}
 
 
-cp chrootlvm /mnt/chrootlvm 
-chmod +x /mnt/chrootlvm 
-chroot /mnt bash chrootlvm && rm /mnt/chrootlvm
+CHS_FINAL(){
+cp /etc/resolv.conf /mnt/etc/
+cp chrootLVM /mnt/chrootLVM 
+chmod +x /mnt/chrootLVM 
+chroot /mnt bash chrootLVM && rm /mnt/chrootLVM
+}
+
+CLOSG(){
+umount -R /mnt
+clear
+/bin/echo -e '\n\n' "\e[1;32mINSTALLATION COMPLETED!...\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mREBOOTING IN ..3\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mREBOOTING IN ..2\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;32mREBOOTING IN ..1\e[0m"
+sleep 1
+/bin/echo -e '\n\n' "\e[1;31mREBOOTING NOW......
+\e[0m"
+reboot
+
+}
 
 
+#call functions
+USR_INPUT
+ENCR
+BASE_BUILD
+CHS_FINAL
+CLOSG
+  
 
 
 
