@@ -1,0 +1,40 @@
+#!/bin/bash
+
+read -p "Enter Drive Encryption password : " ENCRPYTION_PASS
+read -p "Enter Drive Name (eg: sda,vda,nvme0) : " DRIVE
+read -p "Swap partition size (eg: 2,4,8) : " SWPPART
+cfdisk /dev/$DRIVE
+
+#create EFI and root
+
+lsblk /dev/$DRIVE 
+
+read -p "EFI partition (eg: sda1,vda1,nvme01) : " DISK_EFI
+
+read -p "Root partition (eg: sda2,vda2,nvme02) : " DISK_ROOT
+
+echo -n "$ENCRPYTION_PASS" | cryptsetup -y -v luksFormat /dev/$DISK_ROOT
+echo -n "$ENCRPYTION_PASS" | cryptsetup luksOpen /dev/$DISK_ROOT voidvm
+vgcreate voidvm /dev/mapper/voidvm
+lvcreate --name swap -L ${SWPPART}G voidvm
+lvcreate --name root -l 100%FREE voidvm
+mkfs.ext4 -L root /dev/voidvm/home
+mkswap /dev/voidvm/swap
+mount /dev/voidvm/root /mnt
+for dir in dev proc sys run; do mkdir -p /mnt/$dir ; mount --rbind /$dir /mnt/$dir ; mount --make-rslave /mnt/$dir ; done
+mkfs.fat -F32 /dev/$DISK_EFI
+mkdir -p /mnt/boot/efi
+mount /dev/$DISK_EFI /mnt/boot/efi
+
+ARCH=x86_64
+echo YES|xbps-install -Sy -R https://alpha.de.repo.voidlinux.org/current -r /mnt base-system cryptsetup grub-x86_64-efi lvm2
+
+
+cp chrootlvm /mnt/chrootlvm 
+chmod +x /mnt/chrootlvm 
+chroot /mnt bash chrootlvm && rm /mnt/chrootlvm
+
+
+
+
+
