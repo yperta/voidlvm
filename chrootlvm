@@ -38,7 +38,7 @@ cryptsetup luksAddKey /dev/$ECRVLM /boot/volume.key
 chmod 000 /boot/volume.key
 chmod -R g-rwx,o-rwx /boot
 
-echo "voidvm   /dev/${ECRVLM}  /boot/volume.key   luks" >> /etc/crypttab
+echo "voidvm  UUID=${UUID_ROOT}  /boot/volume.key   luks" >> /etc/crypttab
 
 touch /etc/dracut.conf.d/10-crypt.conf
 
