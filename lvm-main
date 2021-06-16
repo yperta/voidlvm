@@ -18,7 +18,7 @@ echo -n "$ENCRPYTION_PASS" | cryptsetup luksOpen /dev/$DISK_ROOT voidvm
 vgcreate voidvm /dev/mapper/voidvm
 lvcreate --name swap -L ${SWPPART}G voidvm
 lvcreate --name root -l 100%FREE voidvm
-mkfs.ext4 -L root /dev/voidvm/home
+mkfs.ext4 -L root /dev/voidvm/root
 mkswap /dev/voidvm/swap
 mount /dev/voidvm/root /mnt
 for dir in dev proc sys run; do mkdir -p /mnt/$dir ; mount --rbind /$dir /mnt/$dir ; mount --make-rslave /mnt/$dir ; done
