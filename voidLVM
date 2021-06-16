@@ -1,17 +1,45 @@
 #!/bin/bash
 
+USR_INPUT() {
+ping -c 1 nsa.gov
+/bin/echo -e '\n\n' "\e[1;36mSTARTING SCRIPT...
+
+\e[0m"
+sleep 2
+clear
+/bin/echo -e '\n\n' "\e[1;36mENTER THE FOLLOWING PARAMETERS...
+
+\e[0m"
+
 read -p "Enter Drive Encryption password : " ENCRPYTION_PASS
-read -p "Enter Drive Name (eg: sda,vda,nvme0) : " DRIVE
+echo "
+
+"
 read -p "Swap partition size (eg: 2,4,8) : " SWPPART
+echo "
+
+"
+lsblk
+echo "
+
+"
+read -p "Enter Drive Name (eg: sda,vda,nvme0) : " DRIVE
 cfdisk /dev/$DRIVE
+clear
+echo "
 
-#create EFI and root
-
+"
 lsblk /dev/$DRIVE 
+echo "
 
+"
 read -p "EFI partition (eg: sda1,vda1,nvme01) : " DISK_EFI
+echo "
 
+"
 read -p "Root partition (eg: sda2,vda2,nvme02) : " DISK_ROOT
+}
+
 
 echo -n "$ENCRPYTION_PASS" | cryptsetup luksFormat --type luks1 /dev/$DISK_ROOT
 echo -n "$ENCRPYTION_PASS" | cryptsetup luksOpen /dev/$DISK_ROOT voidvm
