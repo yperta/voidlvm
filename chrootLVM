@@ -68,7 +68,6 @@ UUID_ROOT=$(blkid -o value -s UUID /dev/$ECRVLM)
 UUID_LVMROOT=$(blkid -o value -s UUID /dev/voidvm/root)
 UUID_LVMSWAP=$(blkid -o value -s UUID /dev/voidvm/swap) 
 
-echo "tmpfs              /tmp           tmpfs   defaults,nosuid,nodev 0		0" >> /etc/fstab
 echo "UUID=${UUID_EFI}	/boot/efi	vfat	defaults	  0       0" >> /etc/fstab	      
 echo "UUID=${UUID_LVMROOT}  /     ext4     defaults             0       0" >> /etc/fstab
 echo "UUID=${UUID_LVMSWAP}  swap  swap    defaults              0       0" >> /etc/fstab
